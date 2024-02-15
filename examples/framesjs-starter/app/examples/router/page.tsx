@@ -8,7 +8,7 @@ export default async function RouteExample({
 }: NextServerPageProps) {
   return (
     <FrameRouter<RouterAppState>
-      initialState={{ correctAnswer: 1 }}
+      initialState={{ correctAnswer: 1, answersCount: 0 }}
       framesHandlerURL={"/examples/router/frames"}
       framesURL={"/examples/router"}
       {...{ searchParams }}

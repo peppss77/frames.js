@@ -25,7 +25,17 @@ export async function EnterValueFrame({
       </FrameImage>
       <FrameInput text="Type 1 or 0"></FrameInput>
       <FrameLink to="/">← Back</FrameLink>
-      <FrameLink to="/check-value">Check →</FrameLink>
+      <FrameLink
+        to={{
+          path: "/check-value",
+          state: {
+            ...$routerState.state,
+            answersCount: $routerState.state.answersCount + 1,
+          },
+        }}
+      >
+        Check →
+      </FrameLink>
     </Frame>
   );
 }
@@ -41,6 +51,11 @@ export async function CheckValueFrame({
         <FrameImage>
           <div>You did not provide any value</div>
         </FrameImage>
+        <FrameLink
+          to={{ path: "/", state: { ...$routerState.state, answersCount: 0 } }}
+        >
+          Reset
+        </FrameLink>
       </Frame>
     );
   }
@@ -51,12 +66,21 @@ export async function CheckValueFrame({
   return (
     <Frame $routerState={$routerState}>
       <FrameImage>
-        <div>{isCorrectAnswer ? "You are the 💣" : "😢 wrong answer"}</div>
+        <div tw="flex flex-col">
+          <div tw="flex">
+            {isCorrectAnswer ? "You are the 💣" : "😢 wrong answer"}
+          </div>
+          <div tw="flex">This is answer #{$routerState.state.answersCount}</div>
+        </div>
       </FrameImage>
       {!isCorrectAnswer ? (
         <FrameLink to="/enter-value">Try again</FrameLink>
       ) : (
-        <FrameLink to="/">Reset</FrameLink>
+        <FrameLink
+          to={{ path: "/", state: { ...$routerState.state, answersCount: 0 } }}
+        >
+          Reset
+        </FrameLink>
       )}
     </Frame>
   );
