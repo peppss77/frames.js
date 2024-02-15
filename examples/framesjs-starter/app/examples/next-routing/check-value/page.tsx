@@ -1,15 +1,13 @@
-import { FrameImage, NextServerPageProps } from "frames.js/next/server";
-import { FrameLink, currentFrame } from "../components";
-import { Frame, RouterAppState, initialState } from "../types";
+import { FrameImage } from "frames.js/next/server";
+import { FrameLink, FramePageProps, createFramePage } from "../components";
+import { RouterAppState, initialState } from "../types";
 
-export default function CheckValueFrame({ searchParams }: NextServerPageProps) {
-  const frame = currentFrame({ searchParams, initialState });
-
+function CheckValueFrame({ frame, Frame }: FramePageProps<RouterAppState>) {
   const textInputValue = frame.previousFrame?.postBody?.untrustedData.inputText;
 
   if (!textInputValue) {
     return (
-      <Frame {...{ frame }}>
+      <Frame>
         <FrameImage>
           <div>You did not provide any value</div>
         </FrameImage>
@@ -26,7 +24,7 @@ export default function CheckValueFrame({ searchParams }: NextServerPageProps) {
   const isCorrectAnswer = val === frame.state.correctAnswer;
 
   return (
-    <Frame {...{ frame }}>
+    <Frame>
       <FrameImage>
         <div tw="flex flex-col">
           <div tw="flex">
@@ -47,3 +45,12 @@ export default function CheckValueFrame({ searchParams }: NextServerPageProps) {
     </Frame>
   );
 }
+
+export default createFramePage<RouterAppState>(
+  {
+    initialState,
+    framesHandlerURL: "/examples/next-routing/frames",
+    framesURL: "/examples/next-routing",
+  },
+  CheckValueFrame
+);

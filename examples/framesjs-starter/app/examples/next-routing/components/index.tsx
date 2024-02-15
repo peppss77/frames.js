@@ -1,5 +1,6 @@
 import {
   FrameImage,
+  NextServerPageProps,
   PreviousFrame,
   getPreviousFrame,
 } from "frames.js/next/server";
@@ -231,6 +232,75 @@ export function createFrameComponent<TAppState>({
         {...props}
         framesHandlerURL={framesHandlerURL}
         framesURL={framesURL}
+      />
+    );
+  };
+}
+
+function createFrameComponentWithFrame<TAppState>({
+  framesHandlerURL,
+  // @todo this leaks just because of debugger being an app that runs on the same port and domains as frames
+  // normally we should have standalone debugger that doesn't interfere with how frames are implemented
+  framesURL,
+  frame,
+}: {
+  framesHandlerURL?: string;
+  framesURL?: string;
+  frame: CurrentFrame<TAppState>;
+}) {
+  return function FrameWithDefaults(
+    props: Omit<
+      FrameProps<TAppState>,
+      "framesHandlerURL" | "framesURL" | "frame"
+    >
+  ) {
+    return (
+      <Frame<TAppState>
+        {...props}
+        frame={frame}
+        framesHandlerURL={framesHandlerURL}
+        framesURL={framesURL}
+      />
+    );
+  };
+}
+
+export type FramePageProps<TAppState> = NextServerPageProps & {
+  frame: CurrentFrame<TAppState>;
+  Frame: React.ComponentType<
+    Omit<FrameProps<TAppState>, "framesHandlerURL" | "framesURL" | "frame">
+  >;
+};
+
+export function createFramePage<TAppState>(
+  {
+    initialState,
+    framesHandlerURL,
+    framesURL,
+  }: {
+    initialState: TAppState;
+    // @todo this leaks just because of debugger being an app that runs on the same port and domains as frames
+    // normally we should have standalone debugger that doesn't interfere with how frames are implemented
+    framesHandlerURL?: string;
+    framesURL?: string;
+  },
+  Page: React.ComponentType<FramePageProps<TAppState>>
+) {
+  return function FramePage(props: NextServerPageProps) {
+    const frame = currentFrame({
+      initialState,
+      searchParams: props.searchParams,
+    });
+
+    return (
+      <Page
+        {...props}
+        frame={frame}
+        Frame={createFrameComponentWithFrame({
+          framesHandlerURL,
+          framesURL,
+          frame,
+        })}
       />
     );
   };
