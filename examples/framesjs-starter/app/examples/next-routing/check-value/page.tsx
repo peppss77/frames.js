@@ -26,7 +26,7 @@ export default function CheckValueFrame({ searchParams }: NextServerPageProps) {
   const isCorrectAnswer = val === frame.state.correctAnswer;
 
   return (
-    <Frame {...{ searchParams, frame }}>
+    <Frame {...{ frame }}>
       <FrameImage>
         <div tw="flex flex-col">
           <div tw="flex">
