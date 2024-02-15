@@ -125,7 +125,6 @@ type FrameProps<TAppState> = {
     | (React.ReactElement<AllowedFrameChildren> | null)[]
     | null;
   frame: CurrentFrame<TAppState>;
-  searchParams: { [key: string]: string | string[] | undefined } | undefined;
   /**
    * Overrides handler URL. It can be either relative or absolute URL.
    */

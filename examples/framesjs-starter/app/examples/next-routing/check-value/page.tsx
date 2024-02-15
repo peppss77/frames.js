@@ -9,7 +9,7 @@ export default function CheckValueFrame({ searchParams }: NextServerPageProps) {
 
   if (!textInputValue) {
     return (
-      <Frame {...{ searchParams, frame }}>
+      <Frame {...{ frame }}>
         <FrameImage>
           <div>You did not provide any value</div>
         </FrameImage>
