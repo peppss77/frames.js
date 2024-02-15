@@ -1,5 +1,40 @@
 # frames.js
 
+## 0.5.0
+
+### Minor Changes
+
+- 40d2662: Change <FrameButton> props to reflect Farcaster Frames schema names
+
+## 0.4.4
+
+### Patch Changes
+
+- b174138: Fix getFrameFlattened meta tags
+
+## 0.4.3
+
+### Patch Changes
+
+- e54b9ad: add meta frame.imageAspectRatio to getFrameHtmlHead fn in getFrameHtml.ts
+- a09c555: fix bug with validateFrameMessage
+
+## 0.4.2
+
+### Patch Changes
+
+- ccb8317: feat: support for `fc:frame:image:aspect_ratio`
+
+## 0.4.1
+
+### Patch Changes
+
+- 800d887: fix: add warning if `FrameContainer`'s `pathname` prop is not specified.
+- 8112f6f: fix: use nested destructuring for options defaults
+- fd70614: feat: throw clearer error when hub url is specified without protocol (e.g. https://)
+- b71f05b: feat: expose fetch options in HubHttpUrlOptions
+- 8112f6f: fix: use neynar hubs as fallback
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,5 +1,41 @@
 # framesjs-starter
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [40d2662]
+  - frames.js@0.5.0
+
+## 0.1.9
+
+### Patch Changes
+
+- d861fb9: fix: url validation and smoother navigation
+- Updated dependencies [e54b9ad]
+- Updated dependencies [a09c555]
+  - frames.js@0.4.3
+
+## 0.1.8
+
+### Patch Changes
+
+- 2150e11: chore(debugger): remove mint spec warning
+- Updated dependencies [ccb8317]
+  - frames.js@0.4.2
+
+## 0.1.7
+
+### Patch Changes
+
+- 8112f6f: fix: use neynar hubs as fallback
+- Updated dependencies [800d887]
+- Updated dependencies [8112f6f]
+- Updated dependencies [fd70614]
+- Updated dependencies [b71f05b]
+- Updated dependencies [8112f6f]
+  - frames.js@0.4.1
+
 ## 0.1.6
 
 ### Patch Changes

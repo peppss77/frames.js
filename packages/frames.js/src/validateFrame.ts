@@ -1,5 +1,11 @@
 import * as cheerio from "cheerio";
-import { FrameButton, FrameButtonsType, Frame, ErrorKeys } from "./types";
+import {
+  FrameButton,
+  FrameButtonsType,
+  Frame,
+  ErrorKeys,
+  ImageAspectRatio,
+} from "./types";
 import {
   getByteLength,
   isFrameButtonLink,
@@ -54,6 +60,9 @@ export function validateFrame({
   const image = $(
     "meta[property='fc:frame:image'], meta[name='fc:frame:image']"
   ).attr("content");
+  const imageAspectRatio = $(
+    "meta[property='fc:frame:image:aspect_ratio'], meta[name='fc:frame:image:aspect_ratio']"
+  ).attr("content");
 
   const postUrl =
     $(
@@ -66,7 +75,7 @@ export function validateFrame({
 
   const buttonLabels = [1, 2, 3, 4].flatMap((el) =>
     $(
-      `meta[property^='fc:frame:button:${el}'], meta[name='fc:frame:button:${el}']`
+      `meta[property='fc:frame:button:${el}'], meta[name='fc:frame:button:${el}']`
     )
       .map((i, elem) => parseButtonElement(elem))
       .filter((i, elem) => elem !== null)
@@ -74,7 +83,7 @@ export function validateFrame({
   );
   const buttonActions = [1, 2, 3, 4].flatMap((el) =>
     $(
-      `meta[property^='fc:frame:button:${el}:action'], meta[name='fc:frame:button:${el}:action']`
+      `meta[property='fc:frame:button:${el}:action'], meta[name='fc:frame:button:${el}:action']`
     )
       .map((i, elem) => parseButtonElement(elem))
       .filter((i, elem) => elem !== null)
@@ -83,7 +92,7 @@ export function validateFrame({
 
   const buttonTargets = [1, 2, 3, 4].flatMap((el) =>
     $(
-      `meta[property^='fc:frame:button:${el}:target'], meta[name='fc:frame:button:${el}:target']`
+      `meta[property='fc:frame:button:${el}:target'], meta[name='fc:frame:button:${el}:target']`
     )
       .map((i, elem) => parseButtonElement(elem))
       .filter((i, elem) => elem !== null)
@@ -234,7 +243,27 @@ export function validateFrame({
         key: "fc:frame:image",
       });
     }
+
+    // validate data url is less than 256kb (warpcast)
+    if (getByteLength(image) > 256 * 1024) {
+      addError({
+        message: `Data URI is more than 256kb (${Math.ceil(getByteLength(image) / 1024)}kb)`,
+        key: "fc:frame:image",
+      });
+    }
   }
+
+  if (
+    imageAspectRatio &&
+    imageAspectRatio !== "1.91:1" &&
+    imageAspectRatio !== "1:1"
+  ) {
+    addError({
+      message: "Invalid image aspect ratio",
+      key: "fc:frame:image:aspect_ratio",
+    });
+  }
+
   if (!postUrl) {
     addError({
       message: "No post_url in frame",
@@ -266,6 +295,7 @@ export function validateFrame({
     frame: {
       version: version as "vNext" | `${number}-${number}-${number}`,
       image: image!,
+      imageAspectRatio: imageAspectRatio as ImageAspectRatio,
       buttons: buttonsWithActions as FrameButtonsType,
       postUrl,
       inputText,

@@ -1,8 +1,6 @@
-type FrameVersion = "vNext" | `${number}-${number}-${number}`;
+export type FrameVersion = "vNext" | `${number}-${number}-${number}`;
 
-// type CAIP2ChainId = string;
-// export type CAIP10Address = `${CAIP2ChainId}:${string}`;
-// export type FrameButtonTarget = CAIP10Address | `${CAIP10Address}:${number}`
+export type ImageAspectRatio = "1.91:1" | "1:1";
 
 /** A developer friendly representation of a Frame */
 export type Frame = {
@@ -12,9 +10,11 @@ export type Frame = {
   postUrl: string;
   /** A page may contain 0 to 4 buttons. If more than 1 button is present, the idx values must be in sequence starting from 1 (e.g. 1, 2 3). If a broken sequence is present (e.g 1, 2, 4), apps must not render the frame and instead render an OG embed. */
   buttons?: FrameButtonsType;
-  /** An image which must be smaller than 10MB and should have an aspect ratio of 1.91:1 */
+  /** An image which should have an aspect ratio of 1.91:1 or 1:1 */
   image: string;
-  /** An image which must be smaller than 10MB and should have an aspect ratio of 1.91:1. Fallback for clients that do not support frames. */
+  /** Must be either `1.91:1` or `1:1`. Defaults to `1.91:1` */
+  imageAspectRatio?: ImageAspectRatio;
+  /** An image which should have an aspect ratio of 1.91:1. Fallback for clients that do not support frames. */
   ogImage?: string;
   /** Adding this property enables the text field. The content is a 32-byte label that is shown to the user (e.g. Enter a message). */
   inputText?: string;
@@ -24,6 +24,7 @@ export type Frame = {
 export const frameErrorKeys = [
   "fc:frame",
   "fc:frame:image",
+  "fc:frame:image:aspect_ratio",
   "fc:frame:post_url",
   "fc:frame:input:text",
   "fc:frame:button:1",
@@ -42,6 +43,7 @@ export type ActionButtonType = "post" | "post_redirect" | "link";
 export type FrameFlattened = {
   "fc:frame": FrameVersion;
   "fc:frame:image": string;
+  "fc:frame:image:aspect_ratio"?: string;
   "fc:frame:post_url": string;
   "fc:frame:button:1"?: string;
   "fc:frame:button:1:action"?: ActionButtonType;
@@ -79,7 +81,11 @@ export type FrameButtonPost = {
    * If set to post, app must make the POST request and frame server must respond with a 200 OK, which may contain another frame.
    * If set to post_redirect, app must make the POST request, and the frame server must respond with a 302 OK with a location property set on the header. */
   action: "post" | "post_redirect";
-  target?: undefined;
+  /**
+   * POST the packet to fc:frame:button:$idx:action:target if present
+   * POST the packet to fc:frame:post_url if target was not present.
+   */
+  target?: string;
   /** A 256-byte string which is label of the button */
   label: string;
 };
@@ -154,7 +160,7 @@ export type FrameActionPayload = {
 
 /** Options available in functions that make use of Hub queries */
 export type HubHttpUrlOptions = {
-  /** Hub HTTP REST API endpoint to use (default: https://nemes.farcaster.xyz:2281) */
+  /** Hub HTTP REST API endpoint to use (default: https://hub-api.neynar.com w/ public API key) */
   hubHttpUrl?: string;
   /** Hub HTTP request options (use this for setting API keys) */
   hubRequestOptions?: RequestInit;

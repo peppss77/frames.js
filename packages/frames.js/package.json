@@ -1,6 +1,6 @@
 {
   "name": "frames.js",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -54,11 +54,6 @@
       "import": "./dist/validateFrameMessage.js",
       "types": "./dist/validateFrameMessage.d.ts"
     },
-    "./next/client": {
-      "require": "./dist/next/client.js",
-      "import": "./dist/next/client.js",
-      "types": "./dist/next/client.d.ts"
-    },
     "./next/server": {
       "require": "./dist/next/server.js",
       "import": "./dist/next/server.js",
@@ -76,7 +71,7 @@
     "react-dom": "^18.2.0"
   },
   "dependencies": {
-    "@farcaster/core": "^0.13.7",
+    "@farcaster/core": "^0.14.0",
     "@vercel/og": "^0.6.2",
     "cheerio": "^1.0.0-rc.12",
     "viem": "^2.7.1"

@@ -10,42 +10,51 @@ import { FrameActionMessage, Message } from "@farcaster/core";
  */
 export async function validateFrameMessage(
   body: FrameActionPayload,
-  options?: HubHttpUrlOptions
+  {
+    hubHttpUrl = "https://hub-api.neynar.com",
+    hubRequestOptions = {
+      headers: {
+        api_key: "NEYNAR_FRAMES_JS",
+      },
+    },
+  }: HubHttpUrlOptions = {}
 ): Promise<{
   isValid: boolean;
   message: FrameActionMessage | undefined;
 }> {
-  const optionsOrDefaults = {
-    hubHttpUrl: options?.hubHttpUrl || "https://nemes.farcaster.xyz:2281",
-    hubRequestOptions: options?.hubRequestOptions ?? {},
-  };
+  if (!body) {
+    throw new Error(
+      "Tried to call validateFrameMessage with no frame action payload. You may be calling it incorrectly on the homeframe"
+    );
+  }
 
+  const { headers, ...rest } = hubRequestOptions;
   const validateMessageResponse = await fetch(
-    `${optionsOrDefaults.hubHttpUrl}/v1/validateMessage`,
+    `${hubHttpUrl}/v1/validateMessage`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/octet-stream",
-        ...optionsOrDefaults.hubRequestOptions.headers,
+        ...headers,
       },
       body: hexStringToUint8Array(body.trustedData.messageBytes),
-      ...optionsOrDefaults.hubRequestOptions.headers,
+      ...rest,
     }
   );
 
   const validateMessageJson = await validateMessageResponse.json();
 
-  if (!validateMessageJson.valid) {
-    return {
-      isValid: false,
-      message: undefined,
-    };
-  } else {
+  if (validateMessageJson.valid) {
     return {
       isValid: true,
       message: Message.fromJSON(
         validateMessageJson.message
       ) as FrameActionMessage,
+    };
+  } else {
+    return {
+      isValid: false,
+      message: undefined,
     };
   }
 }

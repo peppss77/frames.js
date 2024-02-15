@@ -16,9 +16,9 @@ export type GetFrameMessageOptions = {
 } & HubHttpUrlOptions;
 
 export type FrameMessageReturnType<T extends GetFrameMessageOptions> =
-  T["fetchHubContext"] extends true
-    ? FrameActionDataParsedAndHubContext
-    : FrameActionDataParsed;
+  T["fetchHubContext"] extends false
+    ? FrameActionDataParsed
+    : FrameActionDataParsedAndHubContext;
 
 /** Returns a `FrameActionData` object from the message trusted data. (e.g. button index, input text). The `fetchHubContext` option (default: true) determines whether to validate and fetch other metadata from hubs.
  * If `isValid` is false, the message should not be trusted.
@@ -27,9 +27,13 @@ export async function getFrameMessage<T extends GetFrameMessageOptions>(
   payload: FrameActionPayload,
   {
     fetchHubContext = true,
-    hubHttpUrl = "https://nemes.farcaster.xyz:2281",
-    hubRequestOptions = {},
-  }
+    hubHttpUrl = "https://hub-api.neynar.com",
+    hubRequestOptions = {
+      headers: {
+        api_key: "NEYNAR_FRAMES_JS",
+      },
+    },
+  }: T = {} as T
 ): Promise<FrameMessageReturnType<T>> {
   const decodedMessage = Message.decode(
     Buffer.from(payload.trustedData.messageBytes, "hex")
@@ -64,8 +68,8 @@ export async function getFrameMessage<T extends GetFrameMessageOptions>(
       requesterUserData,
     ] = await Promise.all([
       validateFrameMessage(payload, {
-        hubHttpUrl: hubHttpUrl,
-        hubRequestOptions: hubRequestOptions,
+        hubHttpUrl,
+        hubRequestOptions,
       }),
       fetch(
         `${hubHttpUrl}/v1/linkById?fid=${requesterFid}&target_fid=${castId?.fid}&link_type=follow`,
@@ -86,15 +90,15 @@ export async function getFrameMessage<T extends GetFrameMessageOptions>(
       getAddressForFid({
         fid: requesterFid,
         options: {
-          hubHttpUrl: hubHttpUrl,
-          hubRequestOptions: hubRequestOptions,
+          hubHttpUrl,
+          hubRequestOptions,
         },
       }),
       getUserDataForFid({
         fid: requesterFid,
         options: {
-          hubHttpUrl: hubHttpUrl,
-          hubRequestOptions: hubRequestOptions,
+          hubHttpUrl,
+          hubRequestOptions,
         },
       }),
     ]);
