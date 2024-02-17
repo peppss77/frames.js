@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 import { getFrameMessage } from "frames.js";
 import { Dalle } from "./dall-e";
+import { DEBUG_HUB_OPTIONS } from "../../../debug/constants";
 // extend this endpoint to 5 min timeout
 export const maxDuration = 300;
 
@@ -16,8 +17,7 @@ export async function POST(req: NextRequest) {
 
   // verify independently
   const frameMessage = await getFrameMessage(body.postBody, {
-    hubHttpUrl: "https://hub.freefarcasterhub.com:3281",
-    fetchHubContext: true,
+    ...DEBUG_HUB_OPTIONS,
   });
 
   const uniqueId = `fid:${frameMessage.requesterFid}`;

@@ -11,12 +11,13 @@ import {
 } from "frames.js/next/server";
 import Link from "next/link";
 import { kv } from "@vercel/kv";
+import { DEBUG_HUB_OPTIONS } from "../../debug/constants";
 
 type State = {
   page: "homeframe";
 };
 
-const initialState = { page: 1 };
+const initialState = { page: "homeframe" } as const;
 
 const reducer: FrameReducer<State> = (state, action) => {
   return {
@@ -32,8 +33,7 @@ export default async function Home({
   const previousFrame = getPreviousFrame<State>(searchParams);
 
   const frameMessage = await getFrameMessage(previousFrame.postBody, {
-    hubHttpUrl: "https://hub.freefarcasterhub.com:3281",
-    fetchHubContext: true,
+    ...DEBUG_HUB_OPTIONS,
   });
 
   if (frameMessage && !frameMessage?.isValid) {
@@ -46,40 +46,56 @@ export default async function Home({
     previousFrame
   );
 
-  const { castId, requesterFid } = frameMessage;
-
-  if (state.page === 2)
-    // unique to fid & not cast hash
-    const uniqueId = `fid:${requesterFid}`;
-
-  const existingRequests = await kv.hgetall(uniqueId);
-  if (existingRequests) {
-    // Check status of request
-  } else {
-    // start request, don't await it! Return a loading page, let this run in the background
-    fetch(`/slow-fetch`, {
-      method: "POST",
-      body: JSON.stringify({
-        postBody: previousFrame.postBody,
-        params,
-        searchParams,
-      }),
-    });
-  }
-
   let frame;
 
-  if (state.page === 1) {
+  if (frameMessage) {
+    const { castId, requesterFid } = frameMessage;
+
+    const uniqueId = `fid:${requesterFid}`;
+
+    const existingRequests = await kv.hgetall(uniqueId);
+
+    console.log(existingRequests);
+    if (existingRequests) {
+      // Check status of request
+      console.log(existingRequests);
+      // if() success, frame is x
+      frame = (
+        <FrameContainer
+          postUrl="/examples/slow-request/frames"
+          pathname="/examples/slow-request"
+          state={state}
+          previousFrame={previousFrame}
+        >
+          <FrameImage src="" />
+          <FrameButton href={""}>Open image</FrameButton>
+        </FrameContainer>
+      );
+    } else {
+      // start request, don't await it! Return a loading page, let this run in the background
+      fetch(
+        `${process.env.NEXT_PUBLIC_HOST}/examples/slow-request/slow-fetch`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            postBody: previousFrame.postBody,
+            params,
+            searchParams,
+          }),
+        }
+      );
+    }
+  } else {
     frame = (
       <FrameContainer
-        postUrl="/frames"
+        postUrl="/examples/slow-request/frames"
+        pathname="/examples/slow-request"
         state={state}
         previousFrame={previousFrame}
       >
-        {/* <FrameImage src="https://framesjs.org/og.png" /> */}
         <FrameImage>
           <div tw="w-full h-full bg-slate-700 text-white justify-center items-center">
-            {frameMessage?.inputText ? frameMessage.inputText : "Prompt dall-e"}
+            Prompt dall-e
           </div>
         </FrameImage>
         <FrameInput text="prompt dall-e" />
