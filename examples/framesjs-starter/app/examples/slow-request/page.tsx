@@ -56,21 +56,34 @@ export default async function Home({
     const existingRequests = await kv.hgetall(uniqueId);
 
     console.log(existingRequests);
-    if (existingRequests) {
-      // Check status of request
-      console.log(existingRequests);
-      // if() success, frame is x
-      frame = (
-        <FrameContainer
-          postUrl="/examples/slow-request/frames"
-          pathname="/examples/slow-request"
-          state={state}
-          previousFrame={previousFrame}
-        >
-          <FrameImage src="" />
-          <FrameButton href={""}>Open image</FrameButton>
-        </FrameContainer>
-      );
+    if (existingRequests && searchParams?.retry !== "true") {
+      if (existingRequests.status === "error")
+        frame = (
+          <FrameContainer
+            postUrl="/examples/slow-request/frames"
+            pathname="/examples/slow-request"
+            state={state}
+            previousFrame={previousFrame}
+          >
+            <FrameImage>{existingRequests.error as string}</FrameImage>
+            <FrameButton href={"/examples/slow-request?retry=true"}>
+              Retry
+            </FrameButton>
+          </FrameContainer>
+        );
+      else {
+        frame = (
+          <FrameContainer
+            postUrl="/examples/slow-request/frames"
+            pathname="/examples/slow-request"
+            state={state}
+            previousFrame={previousFrame}
+          >
+            <FrameImage src="" />
+            <FrameButton href={""}>Open image</FrameButton>
+          </FrameContainer>
+        );
+      }
     } else {
       // start request, don't await it! Return a loading page, let this run in the background
       fetch(
